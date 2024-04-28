@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-auto';
+import adapter from '@sveltejs/adapter-cloudflare';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -8,11 +8,16 @@ const config = {
 	preprocess: vitePreprocess(),
 
 	kit: {
-		// adapter-auto only supports some environments, see https://kit.svelte.dev/docs/adapter-auto for a list.
-		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
-		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
-		adapter: adapter()
+		// See https://kit.svelte.dev/docs/adapter-cloudflare
+		adapter: adapter({			
+			routes: {
+				include: ['/*'],
+				exclude: ['<all>']
+			},
+	  platformProxy: {
+		persist: './.svelte-kit/cloudflare'
+	  }
+		})
 	}
 };
-
 export default config;
