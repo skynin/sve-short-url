@@ -84,7 +84,7 @@
 	};
 </script>
 
-<h2>Setiing new short URL</h2>
+<h2>Seting new short URL</h2>
 <p>Set matching between full URL and short URL</p>
 
 <form method="POST" use:enhance={submitDefault}>
