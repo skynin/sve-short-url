@@ -1,0 +1,9 @@
+.container {
+  position: relative;
+  width: 800px;
+}
+
+/*
+form > button[type="submit"] {
+  max-width: 80px;
+}*/
