@@ -1,6 +1,10 @@
 // place files you want to import through the `$lib` alias in this folder.
 export const isValidUrl = (urlString: string) => {
-  try { 
+  try {
+    if (urlString.indexOf('://') < 0) {      
+      urlString = 'http://localhost/' + urlString.replace(/^(\/)+/, '')
+    }
+    console.log(urlString)
     return Boolean(new URL(urlString)); 
   }
   catch(e) { 
