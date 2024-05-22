@@ -6,7 +6,9 @@ declare global {
 		// interface Locals {}
 		// interface PageData {}
 		// interface PageState {}
-		// interface Platform {}
+		interface Platform {
+			SVE_SHORT_URL: KVNamespace
+		}
 	}
 }
 

@@ -15,7 +15,7 @@ const config = {
 				exclude: ['<all>']
 			},
 	  platformProxy: {
-		persist: './.svelte-kit/cloudflare'
+			persist: './.svelte-kit/cloudflare'
 	  }
 		})
 	}
