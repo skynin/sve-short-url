@@ -1,6 +1,31 @@
-import {createHash} from "node:crypto"
+/*import {createHash} from "node:crypto"
 
 const MD5 = createHash("md5")
+
+function getHash(str: string) : string {
+  return MD5.copy().update(str).digest("hex")
+}*/
+
+// https://moro.neocities.org/javascript-hash-functions
+function hashFnv32a(str: string, asString: boolean, seed?: number) : number | string {
+  /*jshint bitwise:false */
+  let i:number = 0, l:number = 0;
+  let hval:number = (seed === undefined) ? 0x811c9dc5 : seed;
+
+  for (i = 0, l = str.length; i < l; i++) {
+      hval ^= str.charCodeAt(i);
+      hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
+  }
+  if( asString ){
+      // Convert to 8 digit hex string
+      return ("0000000" + (hval >>> 0).toString(16)).slice(-8);
+  }
+  return hval >>> 0;
+}
+
+function getHash(str: string) : string {
+  return hashFnv32a(str, true) as string
+}
 
 export class KVwrapper {
   private platform: Readonly<App.Platform>
@@ -9,8 +34,8 @@ export class KVwrapper {
   }
 
   hashkey(origKey: string) : string {
-    const hashKey = MD5.copy().update(origKey).digest("hex")
-    return hashKey + origKey.replaceAll(/[^A-Fa-f0-9]/g,'').toLowerCase() + (""+origKey.length).slice(-1)
+    const hashKey = getHash(origKey)
+    return hashKey + origKey.replaceAll(/[^A-Fa-f0-9]/g,'').toLowerCase() + (""+origKey.length).slice(-3)
   }
 
   async get(key: string, options?: Partial<KVNamespaceGetOptions<undefined>>,
