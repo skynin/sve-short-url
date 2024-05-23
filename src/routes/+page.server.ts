@@ -23,7 +23,7 @@ export const actions: Actions = {
       }
     } catch (e) {
       console.log(e)
-      return fail(500, { error: 'KV error: ' + e })
+      return fail(500, { error: 'KV error: ' + e, platform })
     }
 
     return fail(422, { errUrls, error: platform ? errorMessageInvalidURL : 'App.platform error' })
