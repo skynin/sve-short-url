@@ -1,30 +1,22 @@
-/*import {createHash} from "node:crypto"
+/* string-hash
+( https://github.com/darkskyapp/string-hash )
+https://moro.neocities.org/javascript-hash-functions+ */
+function hashString (origStr: string) : string {
 
-const MD5 = createHash("md5")
+  if (!origStr) return '42'
 
-function getHash(str: string) : string {
-  return MD5.copy().update(str).digest("hex")
-}*/
+  let hash: number = 5381,
+      i: number    = origStr.length
+  const firstSym: string = (origStr.length ? origStr.charCodeAt(0) : 42).toString(16),
+    secondSym: string = (origStr.length > 1 ? origStr.charCodeAt(1) : 42).toString(16)
+  
+  while(i>2) // we already included first and second symbols
+    hash = (hash * 33) ^ origStr.charCodeAt(--i)
 
-// https://moro.neocities.org/javascript-hash-functions
-function hashFnv32a(str: string, asString: boolean, seed?: number) : number | string {
-  /*jshint bitwise:false */
-  let i:number = 0, l:number = 0;
-  let hval:number = (seed === undefined) ? 0x811c9dc5 : seed;
-
-  for (i = 0, l = str.length; i < l; i++) {
-      hval ^= str.charCodeAt(i);
-      hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
-  }
-  if( asString ){
-      // Convert to 8 digit hex string
-      return ("0000000" + (hval >>> 0).toString(16)).slice(-8);
-  }
-  return hval >>> 0;
-}
-
-function getHash(str: string) : string {
-  return hashFnv32a(str, true) as string
+  /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
+   * integers. Since we want the results to be always positive, convert the
+   * signed int to an unsigned by doing an unsigned bitshift. */
+  return firstSym + secondSym + (hash >>> 0).toString(16) + origStr.length.toString(16).slice(-4);
 }
 
 export class KVwrapper {
@@ -34,8 +26,7 @@ export class KVwrapper {
   }
 
   hashkey(origKey: string) : string {
-    const hashKey = getHash(origKey)
-    return hashKey + origKey.replaceAll(/[^A-Fa-f0-9]/g,'').toLowerCase() + (""+origKey.length).slice(-3)
+    return hashString(origKey)
   }
 
   async get(key: string, options?: Partial<KVNamespaceGetOptions<undefined>>,
