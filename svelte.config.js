@@ -14,6 +14,7 @@ const config = {
 				include: ['/*'],
 				exclude: ['<all>']
 			},
+		config: './wrangler.toml',
 	  platformProxy: {
 			persist: './.svelte-kit/cloudflare'
 	  }

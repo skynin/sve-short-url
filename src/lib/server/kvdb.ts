@@ -29,20 +29,23 @@ export class KVwrapper {
     return hashString(origKey)
   }
 
-  async get(key: string, options?: Partial<KVNamespaceGetOptions<undefined>>,
-  ): Promise<string | null> {
-    return this.platform.SVE_SHORT_URL.get(key, options)
+  get KV() : KVNamespace | undefined {
+    return this.platform.env?.SVE_SHORT_URL
+  }
+
+  async get(key: string, options?: Partial<KVNamespaceGetOptions<undefined>>): Promise<string | null> {
+    return this.KV?.get(key, options) || null
   }
 
   async put(key: string, value: string | ArrayBuffer | ArrayBufferView | ReadableStream, options?: KVNamespacePutOptions): Promise<void> {
-    this.platform.SVE_SHORT_URL.put(key, value, options)
+    this.KV!.put(key, value, options)
   }
 
   async list(options?: KVNamespaceListOptions | undefined) : Promise<KVNamespaceListResult<unknown, string>>{
-    return this.platform.SVE_SHORT_URL.list(options)
+    return this.KV!.list(options)
   }
 
   async delete(key: string) {
-    this.platform.SVE_SHORT_URL.delete(key)
+    this.KV!.delete(key)
   }
 }

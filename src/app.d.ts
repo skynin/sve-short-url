@@ -7,7 +7,9 @@ declare global {
 		// interface PageData {}
 		// interface PageState {}
 		interface Platform {
-			SVE_SHORT_URL: KVNamespace
+			env?: {
+				SVE_SHORT_URL: KVNamespace
+			}			
 		}
 	}
 }
