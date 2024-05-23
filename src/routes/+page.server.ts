@@ -12,14 +12,18 @@ export const actions: Actions = {
 
     const errUrls = validateURLs(fullURL, shortURL, 'invalids')
 
-    // DEBUG 
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
     try {
       if(!errUrls.length && platform) {
         const kvDB = new KVwrapper(platform)
-        await kvDB.put(kvDB.hashkey(shortURL), JSON.stringify({shortURL, fullURL})) 
-        return { success: true, message: `Short URL was linked:<br/>${shortURL}<br/>to<br/>${fullURL}`}
+        const shortKey = kvDB.hashkey(shortURL)
+        await kvDB.put(shortKey, JSON.stringify({shortURL, fullURL}))
+
+    // DEBUG 
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+        const result = await kvDB.get(shortKey)
+
+        return { success: true, message: `Short URL was linked:<br/>${shortURL}<br/>to<br/>${fullURL}<br/>hash: ${shortKey}<br/>saved: ${result?'yes':'NO'}` }
       }
     } catch (e) {
       console.log(e)
