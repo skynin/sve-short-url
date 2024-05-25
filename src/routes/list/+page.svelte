@@ -6,14 +6,19 @@
 	export let data: PageData;
 
   async function deleteRow(hashKeyToBeDeleted: string) {
-    data.list = data.list.filter(row => row.hashURL != hashKeyToBeDeleted)
+    async function thenUpdate(res: Response) {      
+      const deleteAnswer = (await res.json()) as ({success: boolean, message: string})
+      if (deleteAnswer.success) {
+        data.list = data.list.filter(row => row.hashURL != hashKeyToBeDeleted)    
+      }
+      else {
+        console.error(deleteAnswer.message)}
+      return deleteAnswer
+    }
 
     fetch('/list/' + hashKeyToBeDeleted, {
       method: 'DELETE'
-    }).catch(err => console.log(err))
-    //.then(res => res.json()).then(json => console.log(json)).catch(err => console.log(err))
-		/*const json = await res.json()
-		result = JSON.stringify(json)*/
+    }).then(thenUpdate).catch(err => console.log(err))
   }
 
   async function refresh() {
