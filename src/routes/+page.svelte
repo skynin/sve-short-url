@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { trimFirstSymbol } from '$lib';
 	import { errorMessageInvalidURL, validateURLs, type UrlNames, type ErrUrls } from '$lib/validation';
 	import type { SubmitFunction } from '@sveltejs/kit';
 
@@ -48,8 +49,8 @@
   
     // validate URLs
     function isCorrectURLs() {
-      const fullURL = formData.get('fullURL') as string
-      const shortURL = formData.get('shortURL') as string
+      const fullURL = trimFirstSymbol(formData.get('fullURL') as string)
+      const shortURL = trimFirstSymbol(formData.get('shortURL') as string)
       const arrChecks = validateURLs(fullURL, shortURL, 'invalids')
 
       if (arrChecks.length) {
@@ -120,6 +121,7 @@
   <div class="message">{@html OKmessage}</div>
   {/if}
 </form>
+<a href="/list">List of short URLs</a>
 
 <style>
 	.error {
