@@ -15,13 +15,7 @@ export async function DELETE({ params, platform }) { // request
 
   try {
     const kvDB = new KVwrapper(platform)
-    const exists = await kvDB.get(hashkey)
-    if (exists) {
-      await kvDB.delete(hashkey)    
-    }
-    else {
-      throw `-${hashkey}- key not found`
-    }
+    await kvDB.delete(hashkey)
   } catch (e) {
     console.log(e)
     return json({ 
