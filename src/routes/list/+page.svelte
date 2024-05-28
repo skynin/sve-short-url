@@ -5,14 +5,23 @@
   import { invalidate } from '$app/navigation';
 	export let data: PageData;
 
-  async function deleteRow(hashKeyToBeDeleted: string) {
-    async function thenUpdate(res: Response) {      
+  async function deleteRow(event: Event, hashKeyToBeDeleted: string) {
+
+    const stateButton = (state: boolean) => (event.target as HTMLButtonElement).disabled = state
+
+    stateButton(true)
+
+    const thenUpdate = async (res: Response) => {      
       const deleteAnswer = (await res.json()) as ({success: boolean, message: string})
       if (deleteAnswer.success) {
         data.list = data.list.filter(row => row.hashURL != hashKeyToBeDeleted)    
       }
       else {
-        console.error(deleteAnswer.message)}
+        console.error(deleteAnswer.message)
+      }
+
+      stateButton(false)
+
       return deleteAnswer
     }
 
@@ -23,12 +32,9 @@
 
   async function refresh() {
     invalidate('app:list').catch(err => console.log(err))
-    //.then(() => console.log('Refreshed list', data)).catch(err => console.log(err))
   }
 
 </script>
-
-<!-- pre>{JSON.stringify(data, null, 2)}</pre -->
 
 {#if !data.success }
   <p class="error">{data.message}</p>
@@ -49,7 +55,7 @@
       <td>{item.hashURL}</td>
       <td>{item.shortURL}</td>
       <td>{item.fullURL}</td>
-      <td><button on:click={() => deleteRow(item.hashURL)}>X</button></td>
+      <td><button on:click={(event) => deleteRow(event, item.hashURL)}>X</button></td>
     </tr>
 {/each}
   </tbody>

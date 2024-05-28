@@ -2,6 +2,33 @@
 import { json } from '@sveltejs/kit'
 import { KVwrapper } from "$lib/server/kvdb";
 
+async function deleteByPrefix(kvDB: KVwrapper, prefix: string): Promise<void> {
+  const allDeleted: {[key: string]: boolean} = {}
+
+  let nextRead = true
+  let cursor: string | undefined = undefined
+
+  while (nextRead) {
+    const listPart = await kvDB.list(cursor ? { cursor } : { limit: 100, prefix })
+
+    const readKeys = listPart.keys.map(item => item.name)
+
+    // paranoid check
+    for (const item of readKeys) {
+      if (allDeleted[item]) {
+        throw 'kvDB.list return the same key twice: ' + item
+      }
+    }
+    readKeys.forEach(item => allDeleted[item] = true)
+
+    await Promise.all(readKeys.map(item => kvDB.delete(item)))
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    if (listPart.list_complete) nextRead = false
+    else cursor = listPart.cursor
+  }
+}
+
 export async function DELETE({ params, platform }) { // request
 
   const { hashkey } = params
@@ -15,7 +42,7 @@ export async function DELETE({ params, platform }) { // request
 
   try {
     const kvDB = new KVwrapper(platform)
-    await kvDB.delete(hashkey)
+    deleteByPrefix(kvDB, hashkey)    
   } catch (e) {
     console.log(e)
     return json({ 
