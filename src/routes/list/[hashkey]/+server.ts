@@ -26,7 +26,7 @@ export async function DELETE({ params, platform }) { // request
 
   return json({ 
     success: true,
-    message: 'OK ' + Object.keys(platform.env || {}).join(', ')
+    message: 'OK'
    })
 }
 
