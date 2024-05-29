@@ -1,0 +1,5 @@
+compatibility_flags = [ "nodejs_compat" ]
+compatibility_date = "2024-05-20"
+kv_namespaces = [  
+  { binding = "SVE_SHORT_URL", id = "b83637e9282846b48ac195aedfce0f27", preview_id = "b83637e9282846b48ac195aedfce0f27" }
+]
