@@ -1,3 +1,5 @@
+import { getRandomInt } from '$lib'
+import type { RecordOfredirect, RecordURLmatch } from '$lib/models'
 import { KVmemory } from './KVmemory'
 
 const kvMem = new KVmemory()
@@ -22,14 +24,32 @@ function hashString (origStr: string, radix: number = 36) : string {
   return firstSym + (hash >>> 0).toString(radix) + origStr.length.toString(radix).slice(-4);
 }
 
+export const KEY_ITEM_DELIMITER = ':'
+
+const MAX_HASH_LENGTH = 1000
+
 export class KVwrapper {
+
   private platform: Readonly<App.Platform>
   constructor(platform : Readonly<App.Platform>) {
     this.platform = platform
   }
 
-  hashkey(origKey: string) : string {
-    return hashString(origKey)
+  private cacheHash = new Map<string, string>()
+
+  hashKey(origKey: string) : string {
+    if (this.cacheHash.size > MAX_HASH_LENGTH) this.cacheHash.clear()
+
+    if (this.cacheHash.has(origKey)) return this.cacheHash.get(origKey) as string
+
+    const result = hashString(origKey)
+    this.cacheHash.set(origKey, result)
+
+    return result
+  }
+
+  hashKeyItemPrefix(origKey: string) : string {
+    return this.hashKey(origKey) + KEY_ITEM_DELIMITER
   }
 
   get KV() : KVNamespace | KVmemory | undefined {
@@ -40,8 +60,25 @@ export class KVwrapper {
     return this.KV?.get(key, options) || null
   }
 
+  async getURLs(shortURL: string, byHash = false): Promise<RecordURLmatch | null> {
+    const hashKey = byHash ? shortURL : this.hashKey(shortURL)
+    const match = await this.get(hashKey)
+    if (match) return Object.assign({hashKey},JSON.parse(match))
+    return null
+  }
+
   async put(key: string, value: string | ArrayBuffer | ArrayBufferView | ReadableStream, options?: KVNamespacePutOptions): Promise<void> {
     this.KV!.put(key, value, options)
+  }
+
+  async putURL(match: RecordURLmatch): Promise<string> {
+    const shortKey = this.hashKey(match.shortURL)
+    return this.put(shortKey, JSON.stringify(match)).then(() => shortKey)
+  }
+
+  async putURLredirect(shortURL: string, record: RecordOfredirect): Promise<string> {
+    const shortKey = this.hashKeyItemPrefix(shortURL) + record.time.toString(36) + hashString(record.sourceIP+record.userAgent) + getRandomInt(0, 99999).toString(36)
+    return this.put(shortKey, JSON.stringify(record)).then(() => shortKey)
   }
 
   async list(options?: KVNamespaceListOptions | undefined) : Promise<KVNamespaceListResult<unknown, string>>{

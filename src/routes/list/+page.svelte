@@ -37,7 +37,7 @@
 </script>
 
 {#if !data.success }
-  <p class="error">{data.message}</p>
+  <p class="error-message">{data.message}</p>
 {/if}
 
 <table>
@@ -63,8 +63,5 @@
 <button on:click={() => refresh()}>Refresh</button>
 
 <style>
-	.error {
-		color: red;
-		margin-top: -20px;
-	}
+  @import '../../pages.css';
 </style>

@@ -1,4 +1,4 @@
-import { KVwrapper } from "$lib/server/kvdb";
+import { KEY_ITEM_DELIMITER, KVwrapper } from "$lib/server/kvdb";
 
 type RecordOfURL = {
   shortURL?: string
@@ -42,7 +42,7 @@ export async function load({ platform, depends }): Promise<AnswerType> {
 
   try {
     const kvDB = new KVwrapper(platform)
-    const listKeys = await kvDB.list({limit: 100})
+    const listKeys = await kvDB.list({limit: 1000})
 
     const result: AnswerType = {
       success: true,
@@ -50,7 +50,7 @@ export async function load({ platform, depends }): Promise<AnswerType> {
       list: []
     }
 
-    await Promise.all(listKeys.keys.map(async item => {
+    await Promise.all(listKeys.keys.filter(item => !item.name.includes(KEY_ITEM_DELIMITER)).map(async item => {
       return readAllInfo(kvDB, item.name).then(rec => result.list.push(rec))
     }))
 

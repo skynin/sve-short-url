@@ -5,10 +5,10 @@ import { KVwrapper } from "$lib/server/kvdb";
 async function deleteByPrefix(kvDB: KVwrapper, prefix: string): Promise<void> {
   const allDeleted: {[key: string]: boolean} = {}
 
-  let nextRead = true
+  const FOREVER = true
   let cursor: string | undefined = undefined
 
-  while (nextRead) {
+  while (FOREVER) {
     const listPart = await kvDB.list(cursor ? { cursor } : { limit: 100, prefix })
 
     const readKeys = listPart.keys.map(item => item.name)
@@ -24,8 +24,9 @@ async function deleteByPrefix(kvDB: KVwrapper, prefix: string): Promise<void> {
     await Promise.all(readKeys.map(item => kvDB.delete(item)))
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    if (listPart.list_complete) nextRead = false
-    else cursor = listPart.cursor
+    if (listPart.list_complete)  break;
+
+    cursor = listPart.cursor
   }
 }
 
