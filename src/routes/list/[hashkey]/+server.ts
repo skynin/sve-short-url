@@ -23,7 +23,7 @@ async function deleteByPrefix(kvDB: KVwrapper, prefix: string): Promise<void> {
     readKeys.forEach(item => allDeleted[item] = true)
 
     await Promise.all(readKeys.map(item => kvDB.delete(item)))
-    await sleep(500)
+    await sleep(2000)
 
     if (listPart.list_complete)  break;
 
