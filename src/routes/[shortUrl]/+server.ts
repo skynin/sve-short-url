@@ -1,3 +1,4 @@
+import { sleep } from "$lib";
 import { KVwrapper } from "$lib/server/kvdb";
 import { json, redirect } from "@sveltejs/kit";
 
@@ -27,8 +28,7 @@ export async function GET({ params, platform, request, getClientAddress }) {
 
   await kvDB.putURLredirect(params.shortUrl, {time, userAgent, sourceIP, geoIP, host})
 
-  // DEBUG waiting of saving
-  await new Promise((resolve) => setTimeout(resolve, 500))
+  await sleep(500)
   
   const prefix = result.fullURL.includes('://') ? '' : '/sho/'
 

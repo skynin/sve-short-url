@@ -2,6 +2,7 @@ import type {Actions} from './$types'
 import { errorMessageInvalidURL, validateURLs } from '$lib/validation';
 import { fail } from '@sveltejs/kit';
 import { KVwrapper } from '$lib/server/kvdb'
+import { sleep } from '$lib';
 
 export const actions: Actions = {
 	default: async ({ request, platform }) => { // ({ cookies, request })
@@ -17,7 +18,7 @@ export const actions: Actions = {
         const kvDB = new KVwrapper(platform)
         const shortKey = await kvDB.putURL({shortURL, fullURL})
 
-        await new Promise((resolve) => setTimeout(resolve, 100))
+        await sleep(300)
 
         const result = await kvDB.get(shortKey)
 
