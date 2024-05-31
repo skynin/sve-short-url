@@ -27,6 +27,9 @@ export async function GET({ params, platform, request, getClientAddress }) {
 
   await kvDB.putURLredirect(params.shortUrl, {time, userAgent, sourceIP, geoIP, host})
 
+  // DEBUG waiting of saving
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  
   const prefix = result.fullURL.includes('://') ? '' : '/sho/'
 
   throw redirect(307, prefix + result.fullURL);
