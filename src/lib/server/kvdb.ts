@@ -4,6 +4,8 @@ import { KVmemory } from './KVmemory'
 
 const kvMem = new KVmemory()
 
+export type ShortKeyOutPutResult = {shortKey?: string}
+
 /* string-hash
 ( https://github.com/darkskyapp/string-hash )
 https://moro.neocities.org/javascript-hash-functions */
@@ -71,13 +73,15 @@ export class KVwrapper {
     this.KV!.put(key, value, options)
   }
 
-  async putURL(match: RecordURLmatch): Promise<string> {
+  async putURL(match: RecordURLmatch, out: ShortKeyOutPutResult={}): Promise<string> {
     const shortKey = this.hashKey(match.shortURL)
+    out.shortKey = shortKey
     return this.put(shortKey, JSON.stringify(match)).then(() => shortKey)
   }
 
-  async putURLredirect(shortURL: string, record: RecordOfredirect): Promise<string> {
+  async putURLredirect(shortURL: string, record: RecordOfredirect, out: ShortKeyOutPutResult={}): Promise<string> {
     const shortKey = this.hashKeyItemPrefix(shortURL) + record.time.toString(36) + hashString(record.sourceIP+record.userAgent) + getRandomInt(0, 99999).toString(36)
+    out.shortKey = shortKey
     return this.put(shortKey, JSON.stringify(record)).then(() => shortKey)
   }
 

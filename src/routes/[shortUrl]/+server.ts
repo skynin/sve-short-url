@@ -1,4 +1,3 @@
-import { sleep } from "$lib";
 import { KVwrapper } from "$lib/server/kvdb";
 import { json, redirect } from "@sveltejs/kit";
 
@@ -13,6 +12,8 @@ export async function GET({ params, platform, request, getClientAddress }) {
     return json({ success: false, message: 'not found' })
   }
 
+  const context = platform?.context
+
   /*
     сохранять в kv время перехода
     сохранять в kv useragent браузера, который совершал переход
@@ -21,14 +22,12 @@ export async function GET({ params, platform, request, getClientAddress }) {
   */
   const time = Date.now()
   const userAgent = request.headers.get('user-agent') as string  
-  let sourceIP: string|null = ''
+  let sourceIP: string = ''
   searchIn.find(item => sourceIP=request.headers.get(item)) || (sourceIP=getClientAddress())
   const host = request.headers.get('host') || 'unknown'
   const geoIP = request.headers.get('cf-ipcountry') || 'unknown'
 
-  await kvDB.putURLredirect(params.shortUrl, {time, userAgent, sourceIP, geoIP, host})
-
-  await sleep(500)
+  context.waitUntil(kvDB.putURLredirect(params.shortUrl, {time, userAgent, sourceIP, geoIP, host}))
   
   const prefix = result.fullURL.includes('://') ? '' : '/sho/'
 

@@ -1,7 +1,6 @@
 // import type {PageServerLoad} from'./$types'
 import { json } from '@sveltejs/kit'
 import { KVwrapper } from "$lib/server/kvdb";
-import { sleep } from '$lib';
 
 async function deleteByPrefix(kvDB: KVwrapper, prefix: string): Promise<void> {
   const allDeleted: {[key: string]: boolean} = {}
@@ -23,7 +22,6 @@ async function deleteByPrefix(kvDB: KVwrapper, prefix: string): Promise<void> {
     readKeys.forEach(item => allDeleted[item] = true)
 
     await Promise.all(readKeys.map(item => kvDB.delete(item)))
-    await sleep(2000)
 
     if (listPart.list_complete)  break;
 
@@ -31,9 +29,11 @@ async function deleteByPrefix(kvDB: KVwrapper, prefix: string): Promise<void> {
   }
 }
 
+// @ts-ignore
 export async function DELETE({ params, platform }) { // request
 
   const { hashkey } = params
+  const context = platform?.context
 
   if (!hashkey || !platform) {
     return json({ 
@@ -44,7 +44,7 @@ export async function DELETE({ params, platform }) { // request
 
   try {
     const kvDB = new KVwrapper(platform)
-    await deleteByPrefix(kvDB, hashkey)    
+    context?.waitUntil(deleteByPrefix(kvDB, hashkey)) 
   } catch (e) {
     console.log(e)
     return json({ 
