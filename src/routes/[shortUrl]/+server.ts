@@ -22,7 +22,7 @@ export async function GET({ params, platform, request, getClientAddress }) {
   */
   const time = Date.now()
   const userAgent = request.headers.get('user-agent') as string  
-  let sourceIP: string = ''
+  let sourceIP: string|null = ''
   searchIn.find(item => sourceIP=request.headers.get(item)) || (sourceIP=getClientAddress())
   const host = request.headers.get('host') || 'unknown'
   const geoIP = request.headers.get('cf-ipcountry') || 'unknown'
